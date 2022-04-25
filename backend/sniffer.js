@@ -119,9 +119,9 @@ async function processMHYPacket(packet) {
 		let packetID = recv.readUInt16BE(2);
 		if (packetID == PACKET_GetPlayerTokenRsp) {
 			var proto = await MHYbuf.dataToProtobuffer(MHYbuf.removeMagic(recv), "GetPlayerTokenRsp")
-			log.debug(proto.secretKey.toString())
+			log.debug(proto.secretKeySeed.toString())
 			let initgen = new MT19937_64();
-			initgen.seed(BigInt(proto.secretKey));
+			initgen.seed(BigInt(proto.secretKeySeed));
 			let generator = new MT19937_64();
 			generator.seed(initgen.int64());
 			generator.int64();
@@ -389,7 +389,7 @@ function getSessionStatus() {
 }
 
 async function updateProxyIP(ip, port) {
-	if (Session.proxy && proxyIP !== ip || Session.proxy && proxyPort !== port) {
+	if (Session.proxy && config.UdpTargetIP !== ip || Session.proxy && config.UdpTargetPort !== port) {
 		log.refresh('Relaunching proxy with an updated IP and port...')
 		await stopProxySession();
 		startProxySession(undefined, ip, port);
